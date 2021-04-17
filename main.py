@@ -1,7 +1,5 @@
 import random
-
 import numpy
-
 from deap import algorithms
 from deap import base
 from deap import creator
@@ -12,14 +10,12 @@ MAX_ITEM = 50
 MAX_WEIGHT = 50
 NBR_ITEMS = 20
 
-# To assure reproductibility, the RNG seed is set prior to the items
-# dict initialization. It is also seeded in main().
+
 random.seed(64)
 
-# Create the item dictionary: item name is an integer, and value is
-# a (weight, value) 2-uple.
+
 items = {}
-# Create random items and store them in the items' dictionary.
+
 for i in range(NBR_ITEMS):
     items[i] = (random.randint(1, 10), random.uniform(0, 100))
 
@@ -28,10 +24,10 @@ creator.create("Individual", set, fitness=creator.Fitness)
 
 toolbox = base.Toolbox()
 
-# Attribute generator
+
 toolbox.register("attr_item", random.randrange, NBR_ITEMS)
 
-# Structure initializers
+
 toolbox.register("individual", tools.initRepeat, creator.Individual,
                  toolbox.attr_item, IND_INIT_SIZE)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual)
@@ -44,25 +40,21 @@ def evalKnapsack(individual):
         weight += items[item][0]
         value += items[item][1]
     if len(individual) > MAX_ITEM or weight > MAX_WEIGHT:
-        return 10000, 0  # Ensure overweighted bags are dominated
+        return 10000, 0
     return weight, value
 
 
 def cxSet(ind1, ind2):
-    """Apply a crossover operation on input sets. The first child is the
-    intersection of the two sets, the second child is the difference of the
-    two sets.
-    """
-    temp = set(ind1)  # Used in order to keep type
-    ind1 &= ind2  # Intersection (inplace)
-    ind2 ^= temp  # Symmetric Difference (inplace)
+
+    temp = set(ind1)
+    ind1 &= ind2
+    ind2 ^= temp
     return ind1, ind2
 
 
 def mutSet(individual):
-    """Mutation that pops or add an element."""
     if random.random() < 0.5:
-        if len(individual) > 0:  # We cannot pop from an empty set
+        if len(individual) > 0:
             individual.remove(random.choice(sorted(tuple(individual))))
     else:
         individual.add(random.randrange(NBR_ITEMS))
